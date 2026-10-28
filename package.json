@@ -6,9 +6,15 @@
     "dev:server": "npm run dev --prefix server",
     "dev:client": "npm run dev --prefix client",
     "build:client": "npm run build --prefix client",
-    "install:all": "npm install --prefix server && npm install --prefix client"
+    "install:all": "npm install --prefix server && npm install --prefix client",
+    "build": "npm run build --prefix client"
   },
-  "keywords": ["transportation", "vehicle", "management", "ethiopia"],
+  "keywords": [
+    "transportation",
+    "vehicle",
+    "management",
+    "ethiopia"
+  ],
   "author": "SVMS Team",
   "license": "MIT"
 }
