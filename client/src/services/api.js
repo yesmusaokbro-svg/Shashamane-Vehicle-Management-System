@@ -1,19 +1,29 @@
-/**
- * api.js
- * Axios instance configured for the SVMS backend.
- * All API calls go through this instance so auth headers/cookies are handled centrally.
- */
-
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',  // Production URL or proxy fallback
-  withCredentials: true,    // Send httpOnly cookies on every request
-  headers: { 'Content-Type': 'application/json' },
+  baseURL: import.meta.env.VITE_API_URL || '/api',
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+  },
   timeout: 15000,
 });
 
-// Response interceptor — normalize errors into a consistent shape
+// Automatically attach the login token to API requests
+api.interceptors.request.use(
+  (config) => {
+    const token = sessionStorage.getItem('svms_token');
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Handle API errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -22,9 +32,10 @@ api.interceptors.response.use(
       error.message ||
       'An unexpected error occurred.';
 
-    // If 401 and not on the login page, clear local auth state
-    if (error.response?.status === 401 && !window.location.pathname.includes('/login')) {
-      // Dispatch a custom event — AuthContext listens for this
+    if (
+      error.response?.status === 401 &&
+      !window.location.pathname.includes('/login')
+    ) {
       window.dispatchEvent(new CustomEvent('svms:unauthorized'));
     }
 
